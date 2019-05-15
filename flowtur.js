@@ -8,7 +8,6 @@ class Component {
 
   receive(inputs) {
     // Should be implemented in subclasses
-    return new Map();
   }
 }
 
@@ -19,7 +18,7 @@ class AddComponent extends Component {
 
   receive(inputs) {
     if (!inputs.get('element1').length || !inputs.get('element2').length) {
-      return new Map();
+      return;
     }
 
     let elem1 = inputs.get('element1').shift();
@@ -39,7 +38,22 @@ class LogComponent extends Component {
     if (inputs.get('message').length) {
       console.log(inputs.get('message').shift());
     }
-    return new Map();
+  }
+}
+
+// Emits a preset value, a preset number of times
+class SupplierComponent extends Component {
+  constructor(value, times) {
+    super([], ['value']);
+    this.value = value;
+    this.times = times;
+  }
+
+  receive(inputs) {
+    if (this.times > 0) {
+      this.times -= 1;
+      return new Map([['value', this.value]]);
+    }
   }
 }
 
@@ -80,8 +94,12 @@ class Network {
       let inputs = this.inputQueues.get(component);
       let outputs = component.receive(inputs);
 
-      console.log(`> ${component.constructor.name} received ${JSON.stringify(inputs)}, \
-resulting in ${JSON.stringify(outputs)}`);
+      if (!outputs) {
+        outputs = new Map();
+      }
+
+      console.log(`> ${component.constructor.name} received (${[...inputs]}), \
+resulting in (${[...outputs]})`);
 
       for (let [ outputName, value ] of outputs) {
         let connections = this.outputQueues.get(component).get(outputName);
