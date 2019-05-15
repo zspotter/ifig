@@ -1,13 +1,9 @@
-<DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-  </head>
+import React from 'react';
+import './Workspace.css';
 
-  <link rel="stylesheet" href="index.css">
-
-  <body>
-    <div id="workspace">
+function Workspace() {
+  return (
+    <div className="Workspace">
       <svg viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg" stroke="red" fill="grey">
 
         <rect class="patch" x="100" y="250" width="150" height="100" rx="5" />
@@ -17,8 +13,7 @@
         <line class="wire" x1="250" y1="300" x2="300" y2="100" stroke="black" />
       </svg>
     </div>
+  );
+}
 
-    <script type="text/javascript" src="flowtur.js"></script>
-    <script type="text/javascript" src="index.js"></script>
-  </body>
-</html>
+export default Workspace;
