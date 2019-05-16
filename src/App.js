@@ -1,5 +1,5 @@
 import React from 'react';
-import Workspace from './Workspace';
+import { Workspace, SAMPLE_STATE } from './Workspace';
 
 function App() {
   return (
@@ -7,7 +7,7 @@ function App() {
       <header className="App-header">
         Flowtur Editor
       </header>
-      <Workspace />
+      <Workspace network={SAMPLE_STATE} />
     </div>
   );
 }

@@ -1,0 +1,15 @@
+.Patch-rect {
+  stroke: black;
+  fill: gold;
+
+  cursor: grab;
+}
+
+.react-draggable-dragging .Patch-rect {
+  cursor: grabbing;
+}
+
+.Patch-port {
+  fill: black;
+  stroke: none;
+}

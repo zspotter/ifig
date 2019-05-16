@@ -3,12 +3,3 @@
   height: 700px;
   background: ghostwhite;
 }
-
-svg .patch {
-    stroke: black;
-    fill: gold;
-}
-
-svg .wire {
-  stroke-width: 2;
-}
