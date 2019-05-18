@@ -46,7 +46,10 @@ class Workspace extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = props.network;
+    this.state = {
+      scale: 1,
+      ...props.network
+    };
     this.onPatchMove = this.onPatchMove.bind(this);
   }
 
@@ -64,25 +67,23 @@ class Workspace extends React.Component {
   render() {
     return (
       <div className="Workspace">
-        <svg viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg" stroke="red" fill="grey">
+        <div className="Workspace-view">
+          <svg className="Workspace-doc" viewBox="0 0 3000 3000" xmlns="http://www.w3.org/2000/svg">
+            <g className="Workspace-active" transform={`scale(${this.state.scale})`}>
 
-          {
-            this.state.patches.map((p) => 
-              <Patch key={p.id} patchId={p.id} {...p.position} onPatchMove={this.onPatchMove}/>)
-          }
+              {
+                this.state.wires.map((wire) =>
+                  <Wire key={wire.id} {...wire} />)
+              }
+              {
+                this.state.patches.map((patch) =>
+                  <Patch key={patch.id} {...patch} onPatchMove={this.onPatchMove}/>)
+              }
 
-          {
-            this.state.wires.map((wire) => {
-              let from = this.state.patches.find((p) => p.id === wire.fromPatch);
-              let to = this.state.patches.find((p) => p.id === wire.toPatch);
-              return <Wire key={wire.id}
-                x1={from.position.x + 150} y1={from.position.y + 50}
-                x2={to.position.x} y2={to.position.y + 50} />;
-            })
-          }
-
-        </svg>
-      </div>
+            </g>
+          </svg>
+        </div>
+    </div>
     );
   }
 }

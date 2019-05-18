@@ -1,6 +1,8 @@
 .Patch-rect {
   stroke: black;
+  stroke-width: 2;
   fill: gold;
+  opacity: 0.7;
 
   cursor: grab;
 }

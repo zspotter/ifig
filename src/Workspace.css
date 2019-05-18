@@ -1,5 +1,12 @@
 .Workspace {
   width: 800px;
-  height: 700px;
+  height: 800px;
+  overflow: auto;
+}
+
+.Workspace-view {
+  width: 3000px;
+  height: 3000px;
   background: ghostwhite;
 }
+
