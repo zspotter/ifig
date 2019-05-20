@@ -14,4 +14,11 @@
 .Patch-port {
   fill: black;
   stroke: none;
+
+  cursor: pointer;
+}
+
+.Patch-port:hover {
+  stroke: red;
+  stroke-width: 3;
 }

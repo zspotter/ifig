@@ -34,15 +34,16 @@ class Wire extends React.Component {
 
     const svg = document.querySelector(".Workspace-doc");
     const fromBox = getAbsoluteBBox(from, svg);
-    const toBox = getAbsoluteBBox(to, svg);
-
     const x1 = fromBox.x + fromBox.width / 2;
     const y1 = fromBox.y + fromBox.height / 2;
-    const x2 = toBox.x + toBox.width / 2;
+
+    const toBox = getAbsoluteBBox(to, svg);
+    const x2 = toBox.x + toBox.width / 2 - 10;
     const y2 = toBox.y + toBox.height / 2;
 
     return (
       <path className="Wire-line"
+        markerEnd='url(#head)'
         d={`M${x1},${y1} C${x1 + BEZIER_OFFSET},${y1} ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`} />
     );
   }

@@ -7,6 +7,8 @@
 .Workspace-view {
   width: 3000px;
   height: 3000px;
-  background: ghostwhite;
 }
 
+.Workspace-background {
+  fill: ghostwhite;
+}

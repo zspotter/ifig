@@ -9,15 +9,20 @@ class Patch extends React.Component {
     super(props);
 
     this.onPatchMove = this.onPatchMove.bind(this);
+    this.onPortClick = this.onPortClick.bind(this);
   }
 
   onPatchMove(evt, data) {
     this.props.onPatchMove(this.props.id, { x: data.x, y: data.y });
   }
 
+  onPortClick(evt, portName, isInput) {
+    this.props.onPortClick(this.props.id, portName, isInput);
+  }
+
   render() {
     return (
-      <Draggable defaultPosition={this.props.position} onDrag={this.onPatchMove}>
+      <Draggable handle=".Patch-rect" defaultPosition={this.props.position} onDrag={this.onPatchMove}>
         <g>
           <rect className="Patch-rect" width={this.props.width} height={this.props.height} rx="8" />
 
@@ -25,6 +30,7 @@ class Patch extends React.Component {
             this.props.inputs.map((input, i) =>
               <circle key={input}
                 className="Patch-port"
+                onClick={(evt) => this.onPortClick(evt, input, true)}
                 patch-id={this.props.id}
                 port-name={input}
                 r="5"
@@ -37,6 +43,7 @@ class Patch extends React.Component {
             this.props.outputs.map((output, i) =>
               <circle key={output}
                 className="Patch-port"
+                onClick={(evt) => this.onPortClick(evt, output, false)}
                 patch-id={this.props.id}
                 port-name={output}
                 r="5"
