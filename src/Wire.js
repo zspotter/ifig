@@ -22,7 +22,21 @@ function getAbsoluteBBox(element, svgDocument) {
 }
 
 class Wire extends React.Component {
-  render() {
+  constructor(props) {
+    super(props);
+
+    this.onClick = this.onClick.bind(this);
+  }
+
+  onClick(evt) {
+    if (evt.type !== 'contextmenu') {
+      return;
+    }
+    evt.preventDefault();
+    this.props.deleteWire(this.props.id);
+  }
+
+  computePathD() {
     const from = document.querySelector(
       `[patch-id='${this.props.fromPatch}'][port-name='${this.props.fromPort}']`);
     const to = document.querySelector(
@@ -32,7 +46,7 @@ class Wire extends React.Component {
       return null;
     }
 
-    const svg = document.querySelector(".Workspace-doc");
+    const svg = document.querySelector('.Workspace-doc');
     const fromBox = getAbsoluteBBox(from, svg);
     const x1 = fromBox.x + fromBox.width / 2;
     const y1 = fromBox.y + fromBox.height / 2;
@@ -41,10 +55,19 @@ class Wire extends React.Component {
     const x2 = toBox.x + toBox.width / 2 - 10;
     const y2 = toBox.y + toBox.height / 2;
 
+    return `M${x1},${y1} C${x1 + BEZIER_OFFSET},${y1} ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`;
+  }
+
+  render() {
+    const pathData = this.computePathD() || '';
+
     return (
-      <path className="Wire-line"
+      <path
+        className='Wire-line'
+        onClick={this.onClick}
+        onContextMenu={this.onClick}
         markerEnd='url(#head)'
-        d={`M${x1},${y1} C${x1 + BEZIER_OFFSET},${y1} ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`} />
+        d={pathData} />
     );
   }
 }

@@ -7,6 +7,11 @@
   cursor: grab;
 }
 
+.Patch-rect:hover {
+  stroke: darkgoldenrod;
+  stroke-width: 3;
+}
+
 .react-draggable-dragging .Patch-rect {
   cursor: grabbing;
 }
@@ -19,6 +24,6 @@
 }
 
 .Patch-port:hover {
-  stroke: red;
+  stroke: darkgoldenrod;
   stroke-width: 3;
 }

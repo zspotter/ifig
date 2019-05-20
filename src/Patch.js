@@ -9,28 +9,42 @@ class Patch extends React.Component {
     super(props);
 
     this.onPatchMove = this.onPatchMove.bind(this);
-    this.onPortClick = this.onPortClick.bind(this);
+    this.onPortSelect = this.onPortSelect.bind(this);
+    this.onClick = this.onClick.bind(this);
   }
 
   onPatchMove(evt, data) {
     this.props.onPatchMove(this.props.id, { x: data.x, y: data.y });
   }
 
-  onPortClick(evt, portName, isInput) {
-    this.props.onPortClick(this.props.id, portName, isInput);
+  onPortSelect(evt, portName, isInput) {
+    this.props.onPortSelect(this.props.id, portName, isInput);
+  }
+
+  onClick(evt) {
+    if (evt.type !== 'contextmenu') {
+      return;
+    }
+    evt.preventDefault();
+    this.props.deletePatch(this.props.id);
   }
 
   render() {
     return (
       <Draggable handle=".Patch-rect" defaultPosition={this.props.position} onDrag={this.onPatchMove}>
         <g>
-          <rect className="Patch-rect" width={this.props.width} height={this.props.height} rx="8" />
+          <rect className="Patch-rect"
+            onClick={this.onClick}
+            onContextMenu={this.onClick}
+            width={this.props.width}
+            height={this.props.height}
+            rx="8" />
 
           {
             this.props.inputs.map((input, i) =>
               <circle key={input}
                 className="Patch-port"
-                onClick={(evt) => this.onPortClick(evt, input, true)}
+                onClick={(evt) => this.onPortSelect(evt, input, true)}
                 patch-id={this.props.id}
                 port-name={input}
                 r="5"
@@ -43,7 +57,7 @@ class Patch extends React.Component {
             this.props.outputs.map((output, i) =>
               <circle key={output}
                 className="Patch-port"
-                onClick={(evt) => this.onPortClick(evt, output, false)}
+                onClick={(evt) => this.onPortSelect(evt, output, false)}
                 patch-id={this.props.id}
                 port-name={output}
                 r="5"

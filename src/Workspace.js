@@ -65,7 +65,9 @@ class Workspace extends React.Component {
     };
     this.onPatchMove = this.onPatchMove.bind(this);
     this.onDoubleClick = this.onDoubleClick.bind(this);
-    this.onPortClick = this.onPortClick.bind(this);
+    this.onPortSelect = this.onPortSelect.bind(this);
+    this.deleteWire = this.deleteWire.bind(this);
+    this.deletePatch = this.deletePatch.bind(this);
   }
 
   onPatchMove(patchId, position) {
@@ -86,7 +88,7 @@ class Workspace extends React.Component {
       name: 'New Patch',
       inputs: ['in1', 'in2'],
       outputs: ['out1', 'out2', 'out3'],
-      position: { x: coords.x, y: coords.y }
+      position: { x: coords.x - 20, y: coords.y - 20 }
     };
 
     this.setState((state, props) => ({
@@ -94,7 +96,20 @@ class Workspace extends React.Component {
     }));
   }
 
-  onPortClick(patchId, portName, isInput) {
+  deleteWire(id) {
+    this.setState((state, props) => ({
+      wires: state.wires.filter((wire) => wire.id !== id)
+    }));
+  }
+
+  deletePatch(id) {
+    this.setState((state, props) => ({
+      patches: state.patches.filter((patch) => patch.id !== id),
+      wires: state.wires.filter((wire) => wire.fromPatch !== id && wire.toPatch !== id)
+    }));
+  }
+
+  onPortSelect(patchId, portName, isInput) {
     this.setState((state, props) => {
       if (isInput && state.selections.lastPort) {
         const alreadyConnected = state.wires.find((wire) =>
@@ -147,11 +162,15 @@ class Workspace extends React.Component {
 
               {
                 this.state.wires.map((wire) =>
-                  <Wire key={wire.id} {...wire} />)
+                  <Wire key={wire.id} {...wire} deleteWire={this.deleteWire}/>)
               }
               {
                 this.state.patches.map((patch) =>
-                  <Patch key={patch.id} {...patch} onPatchMove={this.onPatchMove} onPortClick={this.onPortClick}/>)
+                  <Patch key={patch.id}
+                    {...patch}
+                    deletePatch={this.deletePatch}
+                    onPatchMove={this.onPatchMove}
+                    onPortSelect={this.onPortSelect}/>)
               }
 
             </g>
