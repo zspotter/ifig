@@ -4,9 +4,9 @@ import { Workspace, SAMPLE_STATE } from './Workspace';
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
+      <h1 className="App-header">
         Flowtur Editor
-      </header>
+      </h1>
       <Workspace network={SAMPLE_STATE} />
     </div>
   );

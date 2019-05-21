@@ -31,24 +31,31 @@ class Patch extends React.Component {
 
   render() {
     return (
-      <Draggable handle=".Patch-rect" defaultPosition={this.props.position} onDrag={this.onPatchMove}>
+      <Draggable handle='.Patch-rect' defaultPosition={this.props.position} onDrag={this.onPatchMove}>
         <g>
-          <rect className="Patch-rect"
+          <rect className='Patch-rect'
             onClick={this.onClick}
             onContextMenu={this.onClick}
             width={this.props.width}
             height={this.props.height}
-            rx="8" />
+            rx='8' />
+          <text className='Patch-name'
+            x={this.props.width / 2}
+            y={this.props.height / 2}
+            dominantBaseline='middle'
+            textAnchor='middle'>
+            {this.props.name}
+          </text>
 
           {
             this.props.inputs.map((input, i) =>
               <circle key={input}
-                className="Patch-port"
+                className='Patch-port'
                 onClick={(evt) => this.onPortSelect(evt, input, true)}
                 patch-id={this.props.id}
                 port-name={input}
-                r="5"
-                cx="0"
+                r='5'
+                cx='0'
                 cy={this.portY(i, this.props.inputs.length)}/>
             )
           }
@@ -56,11 +63,11 @@ class Patch extends React.Component {
           {
             this.props.outputs.map((output, i) =>
               <circle key={output}
-                className="Patch-port"
+                className='Patch-port'
                 onClick={(evt) => this.onPortSelect(evt, output, false)}
                 patch-id={this.props.id}
                 port-name={output}
-                r="5"
+                r='5'
                 cx={this.props.width}
                 cy={this.portY(i, this.props.outputs.length)}/>
             )

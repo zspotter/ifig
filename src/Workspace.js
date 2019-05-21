@@ -1,6 +1,7 @@
 import React from 'react';
 import uuid from 'uuid/v4';
 import Patch from './Patch';
+import PatchModal from './PatchModal';
 import Wire from './Wire';
 import './Workspace.css';
 
@@ -59,15 +60,20 @@ class Workspace extends React.Component {
       selections: {
         lastPort: null
       },
+      ui: {
+        isModalActive: false
+      },
       incompleteWire: { fromPatch:null, fromPort: null, toCoords: null },
       scale: 1,
       ...props.network
     };
     this.onPatchMove = this.onPatchMove.bind(this);
-    this.onDoubleClick = this.onDoubleClick.bind(this);
     this.onPortSelect = this.onPortSelect.bind(this);
     this.deleteWire = this.deleteWire.bind(this);
     this.deletePatch = this.deletePatch.bind(this);
+    this.onOpenModal = this.onOpenModal.bind(this);
+    this.onCloseModal = this.onCloseModal.bind(this);
+    this.onAddPatch = this.onAddPatch.bind(this);
   }
 
   onPatchMove(patchId, position) {
@@ -78,21 +84,6 @@ class Workspace extends React.Component {
         }
         return patch;
       })
-    }));
-  }
-
-  onDoubleClick(evt) {
-    const coords = svgCoords(evt);
-    const newPatch = {
-      id: uuid(),
-      name: 'New Patch',
-      inputs: ['in1', 'in2'],
-      outputs: ['out1', 'out2', 'out3'],
-      position: { x: coords.x - 20, y: coords.y - 20 }
-    };
-
-    this.setState((state, props) => ({
-      patches: state.patches.concat([newPatch])
     }));
   }
 
@@ -146,37 +137,66 @@ class Workspace extends React.Component {
     });
   }
 
+  onCloseModal() {
+    this.setState({ ui: { isModalActive: false, lastClickCoords: null }});
+  }
+
+  onOpenModal(evt) {
+    this.setState({ ui: { isModalActive: true, lastClickCoords: svgCoords(evt) }});
+  }
+
+  onAddPatch(patch) {
+    const coords = this.state.ui.lastClickCoords;
+    const newPatch = {
+      id: uuid(),
+      name: 'New Patch',
+      inputs: ['in1', 'in2'],
+      outputs: ['out1', 'out2', 'out3'],
+      ...patch,
+      position: { x: coords.x - 20, y: coords.y - 20 }
+    };
+
+    this.setState((state, props) => ({
+      patches: state.patches.concat([newPatch])
+    }));
+  }
+
   render() {
     return (
-      <div className="Workspace">
-        <div className="Workspace-view">
-          <svg className="Workspace-doc" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <marker id='head' orient='auto' markerWidth='2' markerHeight='4' refX='0.1' refY='2'>
-                <path d='M0,0 V4 L2,2 Z' fill='black' />
-              </marker>
-            </defs>
-            <g className="Workspace-active" transform={`scale(${this.state.scale})`} >
+      <div className='Workspace' >
 
-              <rect className="Workspace-background" width="100%" height="100%" onDoubleClick={this.onDoubleClick}/>
+        <PatchModal isActive={this.state.ui.isModalActive} onClose={this.onCloseModal} onAddPatch={this.onAddPatch} />
 
-              {
-                this.state.wires.map((wire) =>
-                  <Wire key={wire.id} {...wire} deleteWire={this.deleteWire}/>)
-              }
-              {
-                this.state.patches.map((patch) =>
-                  <Patch key={patch.id}
-                    {...patch}
-                    deletePatch={this.deletePatch}
-                    onPatchMove={this.onPatchMove}
-                    onPortSelect={this.onPortSelect}/>)
-              }
+        <div className='Workspace-view'>
+          <div className='Workspace-surface'>
+            <svg className='Workspace-doc' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'>
+              <defs>
+                <marker id='head' orient='auto' markerWidth='2' markerHeight='4' refX='0.1' refY='2'>
+                  <path d='M0,0 V4 L2,2 Z' fill='black' />
+                </marker>
+              </defs>
+              <g className='Workspace-active' transform={`scale(${this.state.scale})`} >
 
-            </g>
-          </svg>
+                <rect className='Workspace-background' width='100%' height='100%' onDoubleClick={this.onOpenModal}/>
+
+                {
+                  this.state.wires.map((wire) =>
+                    <Wire key={wire.id} {...wire} deleteWire={this.deleteWire}/>)
+                }
+                {
+                  this.state.patches.map((patch) =>
+                    <Patch key={patch.id}
+                      {...patch}
+                      deletePatch={this.deletePatch}
+                      onPatchMove={this.onPatchMove}
+                      onPortSelect={this.onPortSelect}/>)
+                }
+
+              </g>
+            </svg>
+          </div>
         </div>
-    </div>
+      </div>
     );
   }
 }

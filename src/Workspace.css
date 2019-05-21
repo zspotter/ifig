@@ -1,10 +1,16 @@
 .Workspace {
+  /* For the benefit of nested obsolutely positioned elements */
+  position: relative;
+
   width: 800px;
+}
+
+.Workspace-view {
   height: 800px;
   overflow: auto;
 }
 
-.Workspace-view {
+.Workspace-surface {
   width: 3000px;
   height: 3000px;
 }
