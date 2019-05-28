@@ -1,19 +1,21 @@
+.Patch-body {
+  cursor: grab;
+}
+
+.react-draggable-dragging .Patch-body {
+  cursor: grabbing;
+}
+
 .Patch-rect {
   stroke: black;
   stroke-width: 2;
   fill: gold;
   opacity: 0.7;
-
-  cursor: grab;
 }
 
-.Patch-rect:hover {
+.Patch-body:hover .Patch-rect {
   stroke: darkgoldenrod;
   stroke-width: 3;
-}
-
-.react-draggable-dragging .Patch-rect {
-  cursor: grabbing;
 }
 
 .Patch-port {

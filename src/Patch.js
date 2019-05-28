@@ -31,21 +31,24 @@ class Patch extends React.Component {
 
   render() {
     return (
-      <Draggable handle='.Patch-rect' defaultPosition={this.props.position} onDrag={this.onPatchMove}>
+      <Draggable handle='.Patch-body' defaultPosition={this.props.position} onDrag={this.onPatchMove}>
         <g>
-          <rect className='Patch-rect'
+          <g className='Patch-body'
             onClick={this.onClick}
-            onContextMenu={this.onClick}
-            width={this.props.width}
-            height={this.props.height}
-            rx='8' />
-          <text className='Patch-name'
-            x={this.props.width / 2}
-            y={this.props.height / 2}
-            dominantBaseline='middle'
-            textAnchor='middle'>
-            {this.props.name}
-          </text>
+            onContextMenu={this.onClick}>
+            <rect className='Patch-rect'
+              width={this.props.width}
+              height={this.props.height}
+              rx='8' />
+            <text className='Patch-name'
+              x={this.props.width / 2}
+              y={this.props.height / 2}
+              width={this.props.width - 16}
+              dominantBaseline='middle'
+              textAnchor='middle'>
+              {this.props.name}
+            </text>
+          </g>
 
           {
             this.props.inputs.map((input, i) =>

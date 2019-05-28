@@ -2,7 +2,7 @@
   /* For the benefit of nested obsolutely positioned elements */
   position: relative;
 
-  width: 800px;
+  width: 100%;
 }
 
 .Workspace-view {

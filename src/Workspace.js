@@ -1,47 +1,8 @@
 import React from 'react';
-import uuid from 'uuid/v4';
 import Patch from './Patch';
 import PatchModal from './PatchModal';
 import Wire from './Wire';
 import './Workspace.css';
-
-const SAMPLE_STATE = {
-  patches: [
-    {
-      id: 's1',
-      name: 'Supplier 1',
-      inputs: [],
-      outputs: ['value'],
-      position: {x: 100, y: 150}
-    },
-    {
-      id: 's2',
-      name: 'Supplier 2',
-      inputs: [],
-      outputs: ['value'],
-      position: {x: 120, y: 500}
-    },
-    {
-      id: 'a1',
-      name: 'Adder 1',
-      inputs: ['element1', 'element2'],
-      outputs: ['sum'],
-      position: {x: 400, y: 300}
-    },
-    {
-      id: 'l1',
-      name: 'Logger 1',
-      inputs: ['message'],
-      outputs: [],
-      position: {x: 600, y: 300}
-    }
-  ],
-  wires: [
-    { id: uuid(), fromPatch: 's1', fromPort: 'value', toPatch: 'a1', toPort: 'element1' },
-    { id: uuid(), fromPatch: 's2', fromPort: 'value', toPatch: 'a1', toPort: 'element2' },
-    { id: uuid(), fromPatch: 'a1', fromPort: 'sum', toPatch: 'l1', toPort: 'message' }
-  ]
-};
 
 function svgCoords(evt) {
     const svg = document.querySelector('svg');
@@ -65,7 +26,7 @@ class Workspace extends React.Component {
       },
       incompleteWire: { fromPatch:null, fromPort: null, toCoords: null },
       scale: 1,
-      ...props.network
+      ...props.network.getModel()
     };
     this.onPatchMove = this.onPatchMove.bind(this);
     this.onPortSelect = this.onPortSelect.bind(this);
@@ -77,27 +38,10 @@ class Workspace extends React.Component {
   }
 
   onPatchMove(patchId, position) {
-    this.setState((state, props) => ({
-      patches: state.patches.map((patch) => {
-        if (patch.id === patchId) {
-          return { ...patch, position };
-        }
-        return patch;
-      })
-    }));
-  }
-
-  deleteWire(id) {
-    this.setState((state, props) => ({
-      wires: state.wires.filter((wire) => wire.id !== id)
-    }));
-  }
-
-  deletePatch(id) {
-    this.setState((state, props) => ({
-      patches: state.patches.filter((patch) => patch.id !== id),
-      wires: state.wires.filter((wire) => wire.fromPatch !== id && wire.toPatch !== id)
-    }));
+    this.setState((state, props) => {
+      this.props.network.updatePatch(patchId, { position: position });
+      return this.props.network.getModel();
+    });
   }
 
   onPortSelect(patchId, portName, isInput) {
@@ -112,17 +56,16 @@ class Workspace extends React.Component {
           // Clear selection
           return { selections: { lastPort: null } };
         } else {
+          this.props.network.addWire(
+            state.selections.lastPort.patchId,
+            state.selections.lastPort.portName,
+            patchId,
+            portName
+          );
           return {
             // Clear selection
             selections: { lastPort: null },
-            // Create new wire
-            wires: state.wires.concat([{
-              id: uuid(),
-              fromPatch: state.selections.lastPort.patchId,
-              fromPort: state.selections.lastPort.portName,
-              toPatch: patchId,
-              toPort: portName
-            }])
+            ...this.props.network.getModel()
           };
         }
       }
@@ -137,6 +80,13 @@ class Workspace extends React.Component {
     });
   }
 
+  deleteWire(id) {
+    this.setState((state, props) => {
+      this.props.network.deleteWire(id);
+      return this.props.network.getModel();
+    });
+  }
+
   onCloseModal() {
     this.setState({ ui: { isModalActive: false, lastClickCoords: null }});
   }
@@ -145,27 +95,31 @@ class Workspace extends React.Component {
     this.setState({ ui: { isModalActive: true, lastClickCoords: svgCoords(evt) }});
   }
 
-  onAddPatch(patch) {
+  onAddPatch(patchClass) {
     const coords = this.state.ui.lastClickCoords;
-    const newPatch = {
-      id: uuid(),
-      name: 'New Patch',
-      inputs: ['in1', 'in2'],
-      outputs: ['out1', 'out2', 'out3'],
-      ...patch,
-      position: { x: coords.x - 20, y: coords.y - 20 }
-    };
 
-    this.setState((state, props) => ({
-      patches: state.patches.concat([newPatch])
-    }));
+    this.setState((state, props) => {
+      this.props.network.addPatch(patchClass, { x: coords.x - 20, y: coords.y - 20 });
+      return this.props.network.getModel();
+    });
+  }
+
+  deletePatch(id) {
+    this.setState((state, props) => {
+      this.props.network.deletePatch(id);
+      return this.props.network.getModel();
+    });
   }
 
   render() {
     return (
       <div className='Workspace' >
 
-        <PatchModal isActive={this.state.ui.isModalActive} onClose={this.onCloseModal} onAddPatch={this.onAddPatch} />
+        <PatchModal
+          patchRegistry={this.props.network.patchRegistry}
+          isActive={this.state.ui.isModalActive}
+          onClose={this.onCloseModal}
+          onAddPatch={this.onAddPatch} />
 
         <div className='Workspace-view'>
           <div className='Workspace-surface'>
@@ -201,4 +155,4 @@ class Workspace extends React.Component {
   }
 }
 
-export { Workspace, SAMPLE_STATE };
+export default Workspace;

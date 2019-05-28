@@ -1,22 +1,7 @@
 import React from 'react';
 import './PatchModal.css';
 
-const SAMPLE = [
-  'numbers/Add',
-  'numbers/Subtract',
-  'numbers/Divide',
-  'numbers/Multiply',
-  'numbers/Random',
-  'numbers/Range',
-  'inputs/Supply',
-  'outputs/Log',
-  'conditions/Switch',
-  'conditions/Filter',
-];
-
 class PatchModal extends React.Component {
-  static defaultProps = { patches: SAMPLE }
-
   constructor(props) {
     super(props);
 
@@ -33,8 +18,8 @@ class PatchModal extends React.Component {
     }
   }
 
-  onClickPatch(evt, patchName) {
-    this.props.onAddPatch({ name: patchName });
+  onClickPatch(evt, patchClass) {
+    this.props.onAddPatch(patchClass);
     this.props.onClose();
   }
 
@@ -48,11 +33,11 @@ class PatchModal extends React.Component {
             <div className='PatchModal-list'>
               <ul>
                 {
-                  this.props.patches.map((patch) =>
-                    <li className='PatchModal-list-item' key={patch}>
-                      <button onClick={(evt) => this.onClickPatch(evt, patch)}>{patch}</button>
-                    </li>
-                  )
+                  [...this.props.patchRegistry.patchClasses].map((pair) => {
+                    return (<li className='PatchModal-list-item' key={pair[1]}>
+                      <button onClick={(evt) => this.onClickPatch(evt, pair[0])}>{pair[1]}</button>
+                    </li>);
+                  })
                 }
               </ul>
             </div>
