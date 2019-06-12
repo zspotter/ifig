@@ -29,3 +29,8 @@
   stroke: darkgoldenrod;
   stroke-width: 3;
 }
+
+.Patch-port-name {
+  font-family: monospace, monospace;
+  font-size: 0.8em;
+}

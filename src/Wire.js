@@ -38,9 +38,9 @@ class Wire extends React.Component {
 
   computePathD() {
     const from = document.querySelector(
-      `[patch-id='${this.props.fromPatch}'][port-name='${this.props.fromPort}']`);
+      `.Patch-output [patch-id='${this.props.fromPatch}'][port-name='${this.props.fromPort}']`);
     const to = document.querySelector(
-      `[patch-id='${this.props.toPatch}'][port-name='${this.props.toPort}']`);
+      `.Patch-input [patch-id='${this.props.toPatch}'][port-name='${this.props.toPort}']`);
     // DOM elements may be missing on first render
     if (!from || !to) {
       return null;

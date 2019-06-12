@@ -76,8 +76,8 @@ LogPatch.patchName = 'Log';
 
 // Emits a preset value once
 class SupplyPatch extends Patch {
-  constructor(value = 'Hello World') {
-    super('Supply', [], ['value']);
+  constructor(value = 123) {
+    super(`Supply(${value})`, [], ['value']);
     // TODO: Make properties editable in UI
     this.value = value;
   }

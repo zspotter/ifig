@@ -51,29 +51,46 @@ class Patch extends React.Component {
           </g>
 
           {
-            this.props.inputs.map((input, i) =>
-              <circle key={input}
-                className='Patch-port'
-                onClick={(evt) => this.onPortSelect(evt, input, true)}
-                patch-id={this.props.id}
-                port-name={input}
-                r='5'
-                cx='0'
-                cy={this.portY(i, this.props.inputs.length)}/>
-            )
+            this.props.inputs.map((input, i) => {
+              const y = this.portY(i, this.props.inputs.length);
+              return (
+                <g key={input} className='Patch-input' transform={`translate(0,${y})`}>
+                  <circle className='Patch-port'
+                    onClick={(evt) => this.onPortSelect(evt, input, true)}
+                    patch-id={this.props.id}
+                    port-name={input}
+                    r='5' />
+                  <text className='Patch-port-name'
+                    x='-14'
+                    dominantBaseline='middle'
+                    textAnchor='end'>
+                    {input}
+                  </text>
+                </g>
+              );
+            })
           }
 
           {
-            this.props.outputs.map((output, i) =>
-              <circle key={output}
-                className='Patch-port'
-                onClick={(evt) => this.onPortSelect(evt, output, false)}
-                patch-id={this.props.id}
-                port-name={output}
-                r='5'
-                cx={this.props.width}
-                cy={this.portY(i, this.props.outputs.length)}/>
-            )
+            this.props.outputs.map((output, i) => {
+              const y = this.portY(i, this.props.outputs.length);
+              const x = this.props.width;
+              return (
+                <g key={output} className='Patch-output' transform={`translate(${x},${y})`}>
+                  <circle className='Patch-port'
+                    onClick={(evt) => this.onPortSelect(evt, output, false)}
+                    patch-id={this.props.id}
+                    port-name={output}
+                    r='5' />
+                  <text className='Patch-port-name'
+                    x='9'
+                    dominantBaseline='middle'
+                    textAnchor='start'>
+                    {output}
+                  </text>
+                </g>
+              );
+            })
           }
 
         </g>
