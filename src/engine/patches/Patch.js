@@ -8,7 +8,7 @@ class Patch {
     this.outputNames = outputs;
   }
 
-  receive(inputs) {
+  receive() {
     throw new Error('Not implemented');
   }
 }
