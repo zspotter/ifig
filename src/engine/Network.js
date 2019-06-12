@@ -38,7 +38,7 @@ class Network {
     let inputQueue = this.inputQueues.get(toPatch.id).get(toPort);
     this.outputQueues.get(fromPatch.id).get(fromPort).push(inputQueue);
     this.patchConnections.push({
-      id: `${fromPatch}.${fromPort}:${toPatch}.${toPort}`,
+      id: `${fromPatch.id}.${fromPort}:${toPatch.id}.${toPort}`,
       fromPatch: fromPatch.id,
       fromPort: fromPort,
       toPatch: toPatch.id,
@@ -59,8 +59,7 @@ class Network {
         outputs = new Map();
       }
 
-      console.log(`> ${patch.constructor.name} received (${[...inputs]}), \
-resulting in (${[...outputs]})`);
+      // console.log(`> ${patch.constructor.name} received (${[...inputs]}), resulting in (${[...outputs]})`);
 
       for (let [ outputName, value ] of outputs) {
         let connections = this.outputQueues.get(patch.id).get(outputName);

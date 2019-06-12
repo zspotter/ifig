@@ -67,6 +67,10 @@ class NetworkManager {
       wires
     };
   }
+
+  step() {
+    this.network.step();
+  }
 }
 
 export default NetworkManager;

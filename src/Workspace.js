@@ -35,6 +35,7 @@ class Workspace extends React.Component {
     this.onOpenModal = this.onOpenModal.bind(this);
     this.onCloseModal = this.onCloseModal.bind(this);
     this.onAddPatch = this.onAddPatch.bind(this);
+    this.onStep = this.onStep.bind(this);
   }
 
   onPatchMove(patchId, position) {
@@ -111,9 +112,14 @@ class Workspace extends React.Component {
     });
   }
 
+  onStep() {
+    this.props.network.step();
+  }
+
   render() {
     return (
       <div className='Workspace' >
+        <button className='Workspace-step-btn' onClick={this.onStep}>Step</button>
 
         <PatchModal
           patchRegistry={this.props.network.patchRegistry}
