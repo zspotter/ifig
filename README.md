@@ -1,4 +1,5 @@
-# Flowtur
+# Ifig
 
-Prototyping a Flow-Based-Programming editor and runtime for JavaScript clients
+Prototyping a visual programming language editor and runtime for JavaScript clients.
 
+"Ifig" is an Old English word for ivy.

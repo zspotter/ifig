@@ -27,7 +27,7 @@ function App() {
   return (
     <div className="App">
       <h1 className="App-header">
-        Flowtur Editor
+        Ifig Editor
       </h1>
       <Workspace network={NETWORK_MANAGER} />
     </div>
