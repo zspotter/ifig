@@ -19,8 +19,8 @@ const NETWORK_MANAGER = new NetworkManager(
 
 // Set up demo network
 (function () {
-  const s1 = NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 100, y: 150 });
-  const s2 = NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 120, y: 500 });
+  const s1 = NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 100, y: 150 }, { value: 3 });
+  const s2 = NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 120, y: 500 }, { value: -1 });
   const a1 = NETWORK_MANAGER.addPatch(BasicPatches.AddPatch, { x: 400, y: 300 });
   const l1 = NETWORK_MANAGER.addPatch(BasicPatches.LogPatch, { x: 600, y: 300 });
   NETWORK_MANAGER.addWire(s1.id, 'value', a1.id, 'in1');

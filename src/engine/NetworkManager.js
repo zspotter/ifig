@@ -7,10 +7,11 @@ class NetworkManager {
     this.patchMeta = new Map();
   }
 
-  addPatch(patchClass, position) {
-    const patch = new patchClass();
+  addPatch(patchClass, position, properties = {}) {
+    const patch = new patchClass(properties);
     this.network.addPatch(patch);
-    this.patchMeta.set(patch.id, { position });
+    this.patchMeta.set(patch.id, {});
+    this.updatePatch(patch.id, { position });
     return patch;
   }
 

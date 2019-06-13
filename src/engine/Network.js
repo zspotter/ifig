@@ -40,7 +40,6 @@ class Network {
 
   deletePatch(id) {
     this.patches.delete(id);
-    // TODO clean up all outputs from patches connected to this
     for (let [ , entry] of this.patches) {
       for (let port in entry.outputs) {
         entry.outputs[port] = entry.outputs[port]
@@ -71,9 +70,11 @@ class Network {
     this.patchConnections.splice(i, 1);
 
     const patchOutputs = this.patches.get(wire.fromPatch).outputs[wire.fromPort];
-    patchOutputs.splice(
-      patchOutputs.findIndex((output) => output === [wire.toPatch, wire.toPort]),
-      1);
+    i = patchOutputs.findIndex(([patch, port]) => patch === wire.toPatch && port === wire.toPort);
+    if (i < 0) {
+      throw new Error('Should not happen');
+    }
+    patchOutputs.splice(i, 1);
   }
 
   canReceive(patchId) {
@@ -81,10 +82,19 @@ class Network {
       .every((val) => val !== undefined);
   }
 
+  clearInputs(patchId) {
+    const entry = this.patches.get(patchId);
+    for (let port in entry.inputs) {
+      entry.inputs[port] = undefined;
+    }
+  }
+
   execute() {
     // Patches without any inputs are executed first
     let executionQueue = [];
     for (let [id, entry] of this.patches) {
+      // Ensure clean state
+      this.clearInputs(id);
       if (Object.keys(entry.inputs).length === 0) {
         executionQueue.push(id);
       }
@@ -94,6 +104,12 @@ class Network {
     const start = new Date();
 
     while (executionQueue.length > 0) {
+      const elapsed = new Date() - start;
+      if (elapsed > 10 * 1000) {
+        console.warn('Execution taking longer than 10s. Halting prematurely.');
+        break;
+      }
+
       const patchId = executionQueue.shift();
       if (!this.canReceive(patchId)) {
         console.warn(`Patch ${patchId} was not ready to execute.`);
@@ -109,9 +125,7 @@ class Network {
         + `resulted in ${JSON.stringify(results)}`);
 
       // Clear consumed inputs
-      for (let port in entry.inputs) {
-        entry.inputs[port] = undefined;
-      }
+      this.clearInputs(patchId);
 
       // TODO end execution early if patch was an Output patch
 
