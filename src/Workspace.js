@@ -1,7 +1,7 @@
 import React from 'react';
-import Patch from './Patch';
-import PatchModal from './PatchModal';
-import Wire from './Wire';
+import Patch from './components/Patch';
+import PatchModal from './components/PatchModal';
+import Wire from './components/Wire';
 import './Workspace.css';
 
 function svgCoords(evt) {
