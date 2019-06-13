@@ -34,3 +34,7 @@
   font-family: monospace, monospace;
   font-size: 0.8em;
 }
+
+.Patch-input .sticky {
+  fill: blue;
+}

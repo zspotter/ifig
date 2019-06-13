@@ -28,6 +28,7 @@ class Workspace extends React.Component {
       scale: 1,
       ...props.network.getModel()
     };
+
     this.onPatchMove = this.onPatchMove.bind(this);
     this.onPortSelect = this.onPortSelect.bind(this);
     this.deleteWire = this.deleteWire.bind(this);
@@ -35,6 +36,7 @@ class Workspace extends React.Component {
     this.onOpenModal = this.onOpenModal.bind(this);
     this.onCloseModal = this.onCloseModal.bind(this);
     this.onAddPatch = this.onAddPatch.bind(this);
+    this.onToggleStickyPort = this.onToggleStickyPort.bind(this);
     this.onExecute = this.onExecute.bind(this);
   }
 
@@ -112,6 +114,13 @@ class Workspace extends React.Component {
     });
   }
 
+  onToggleStickyPort(patchId, inputPort) {
+    this.setState((state, props) => {
+      this.props.network.toggleStickiness(patchId, inputPort);
+      return this.props.network.getModel();
+    });
+  }
+
   onExecute() {
     this.props.network.execute();
   }
@@ -149,7 +158,8 @@ class Workspace extends React.Component {
                       {...patch}
                       deletePatch={this.deletePatch}
                       onPatchMove={this.onPatchMove}
-                      onPortSelect={this.onPortSelect}/>)
+                      onPortSelect={this.onPortSelect}
+                      onToggleStickyPort={this.onToggleStickyPort}/>)
                 }
 
               </g>

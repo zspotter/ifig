@@ -23,6 +23,10 @@ class NetworkManager {
     }
   }
 
+  toggleStickiness(patchId, inputPort) {
+    this.network.toggleStickiness(patchId, inputPort);
+  }
+
   deletePatch(id) {
     this.patchMeta.delete(id);
     this.network.deletePatch(id);
@@ -39,7 +43,8 @@ class NetworkManager {
   getModel() {
     const patches = [];
     for (let [ id, meta ] of this.patchMeta) {
-      const patch = this.network.patches.get(id).patch;
+      const entry = this.network.patches.get(id);
+      const patch = entry.patch;
       patches.push({
         id: id,
         name: patch.displayName,
@@ -47,6 +52,7 @@ class NetworkManager {
         // What if a Component accidentally mutates this?
         // More likely, what if the Patch adds another input to itself?
         inputs: patch.inputNames,
+        stickyInputs: entry.stickyInputs,
         outputs: patch.outputNames,
         position: meta.position
       });

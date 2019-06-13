@@ -8,6 +8,7 @@ class Network {
     //       input1: undefined,
     //       input2: 'Hello World'
     //     },
+    //     stickyInputs: Set ['input2'],
     //     outputs: {
     //       output1: [
     //         ['to-patch1-id', 'to-patch1-port'],
@@ -34,8 +35,19 @@ class Network {
     this.patches.set(patch.id, {
       patch,
       inputs,
+      stickyInputs: new Set(),
       outputs
     });
+  }
+
+  toggleStickiness(patchId, inputPort) {
+    const stickyInputs = this.patches.get(patchId).stickyInputs;
+    const isSticky = stickyInputs.has(inputPort);
+    if (!isSticky) {
+      stickyInputs.add(inputPort);
+    } else {
+      stickyInputs.delete(inputPort);
+    }
   }
 
   deletePatch(id) {
@@ -85,7 +97,9 @@ class Network {
   clearInputs(patchId) {
     const entry = this.patches.get(patchId);
     for (let port in entry.inputs) {
-      entry.inputs[port] = undefined;
+      if (!entry.stickyInputs.has(port)) {
+        entry.inputs[port] = undefined;
+      }
     }
   }
 

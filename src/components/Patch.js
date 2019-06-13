@@ -18,6 +18,11 @@ class Patch extends React.Component {
   }
 
   onPortSelect(evt, portName, isInput) {
+    if (isInput && evt.type === 'contextmenu') {
+      evt.preventDefault();
+      this.props.onToggleStickyPort(this.props.id, portName)
+      return;
+    }
     this.props.onPortSelect(this.props.id, portName, isInput);
   }
 
@@ -52,15 +57,18 @@ class Patch extends React.Component {
 
           {
             this.props.inputs.map((input, i) => {
+              const isSticky = this.props.stickyInputs.has(input);
+              const classExtras = isSticky ? " sticky" : "";
               const y = this.portY(i, this.props.inputs.length);
               return (
                 <g key={input} className='Patch-input' transform={`translate(0,${y})`}>
-                  <circle className='Patch-port'
+                  <circle className={'Patch-port' + classExtras}
                     onClick={(evt) => this.onPortSelect(evt, input, true)}
+                    onContextMenu={(evt) => this.onPortSelect(evt, input, true)}
                     patch-id={this.props.id}
                     port-name={input}
                     r='5' />
-                  <text className='Patch-port-name'
+                  <text className={'Patch-port-name' + classExtras}
                     x='-14'
                     dominantBaseline='middle'
                     textAnchor='end'>
