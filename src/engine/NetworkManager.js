@@ -28,10 +28,7 @@ class NetworkManager {
   }
 
   addWire(fromPatchId, fromPort, toPatchId, toPort) {
-    this.network.wirePatches(
-      this.network.patches.get(fromPatchId), fromPort,
-      this.network.patches.get(toPatchId), toPort
-    );
+    this.network.wirePatches(fromPatchId, fromPort, toPatchId, toPort);
   }
 
   deleteWire(id) {
@@ -41,7 +38,7 @@ class NetworkManager {
   getModel() {
     const patches = [];
     for (let [ id, meta ] of this.patchMeta) {
-      const patch = this.network.patches.get(id);
+      const patch = this.network.patches.get(id).patch;
       patches.push({
         id: id,
         name: patch.displayName,
@@ -68,8 +65,8 @@ class NetworkManager {
     };
   }
 
-  step() {
-    this.network.step();
+  execute() {
+    this.network.execute();
   }
 }
 
