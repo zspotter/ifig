@@ -89,6 +89,51 @@ class SupplyPatch extends Patch {
 }
 SupplyPatch.patchName = 'Supply';
 
+class PopPatch extends Patch {
+  constructor() {
+    super('Pop', ['array'], ['head', 'tail']);
+  }
+
+  receive({array}) {
+    if (array.length === 0) {
+      // No head, no tail
+      return;
+    }
+    return {
+      head: array[0],
+      tail: array.slice(1)
+    };
+  }
+}
+PopPatch.patchName = 'Pop';
+
+class AppendPatch extends Patch {
+  constructor() {
+    super('Append', ['array', 'elem'], ['array']);
+  }
+
+  receive({array, elem}) {
+    return {
+      array: array.concat([elem])
+    };
+  }
+}
+AppendPatch.patchName = 'Append';
+
+// Executes arbitrary JS in the global context. Potentially dangerous.
+class JsFunctionPatch extends Patch {
+  constructor(properties) {
+    super('js/Function', [], ['result']);
+    this.fncBody = properties.body || 'new Date()';
+  }
+
+  receive() {
+    const fnc = new Function(`"use strict"; return (${this.fncBody});`);
+    return { result: fnc() };
+  }
+}
+JsFunctionPatch.patchName = 'js/Function';
+
 export {
   AddPatch,
   MultiplyPatch,
@@ -96,5 +141,8 @@ export {
   GatePatch,
   NoopPatch,
   LogPatch,
-  SupplyPatch
+  SupplyPatch,
+  PopPatch,
+  AppendPatch,
+  JsFunctionPatch,
 };

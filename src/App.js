@@ -13,7 +13,10 @@ const NETWORK_MANAGER = new NetworkManager(
     BasicPatches.GatePatch,
     BasicPatches.NoopPatch,
     BasicPatches.LogPatch,
-    BasicPatches.SupplyPatch
+    BasicPatches.SupplyPatch,
+    BasicPatches.PopPatch,
+    BasicPatches.AppendPatch,
+    BasicPatches.JsFunctionPatch,
   ])
 );
 
@@ -26,6 +29,11 @@ const NETWORK_MANAGER = new NetworkManager(
   NETWORK_MANAGER.addWire(s1.id, 'value', a1.id, 'in1');
   NETWORK_MANAGER.addWire(s2.id, 'value', a1.id, 'in2');
   NETWORK_MANAGER.addWire(a1.id, 'sum', l1.id, 'message');
+
+  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 100, y: 700 }, { value: 0 });
+  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 300, y: 700 }, { value: 1 });
+  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 500, y: 700 }, { value: 10 });
+  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 700, y: 700 }, { value: [] });
 })();
 
 function App() {
