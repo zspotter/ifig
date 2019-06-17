@@ -55,7 +55,18 @@ class Wire extends React.Component {
     const x2 = toBox.x + toBox.width / 2 - 10;
     const y2 = toBox.y + toBox.height / 2;
 
-    return `M${x1},${y1} C${x1 + BEZIER_OFFSET},${y1} ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`;
+    if (x2 - x1 > -20) {
+      // Simple direct curve
+      return `M${x1},${y1} C${x1 + BEZIER_OFFSET},${y1} ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`;
+    }
+
+    // Curve that wraps back to the left
+    const xh = x2 + (x1 - x2) / 2;
+    const dy = Math.abs(y1 - y2);
+    const yh = Math.min(y1, y2) + dy / 2 + (dy < 50 ? 75 : 0);
+    return `M${x1},${y1} `
+      + `C${x1 + BEZIER_OFFSET},${y1} ${x1 + BEZIER_OFFSET},${yh} ${xh},${yh} `
+      + `S ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`;
   }
 
   render() {
