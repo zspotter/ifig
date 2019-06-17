@@ -11,6 +11,7 @@ class Patch extends React.Component {
     this.onPatchMove = this.onPatchMove.bind(this);
     this.onPortSelect = this.onPortSelect.bind(this);
     this.onClick = this.onClick.bind(this);
+    this.onDoubleClick = this.onDoubleClick.bind(this);
   }
 
   onPatchMove(evt, data) {
@@ -34,13 +35,19 @@ class Patch extends React.Component {
     this.props.deletePatch(this.props.id);
   }
 
+  onDoubleClick(evt) {
+    evt.preventDefault();
+    this.props.onPatchEdit(this.props.id);
+  }
+
   render() {
     return (
       <Draggable handle='.Patch-body' defaultPosition={this.props.position} onDrag={this.onPatchMove}>
         <g>
           <g className='Patch-body'
             onClick={this.onClick}
-            onContextMenu={this.onClick}>
+            onContextMenu={this.onClick}
+            onDoubleClick={this.onDoubleClick}>
             <rect className='Patch-rect'
               width={this.props.width}
               height={this.props.height}

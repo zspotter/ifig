@@ -1,6 +1,7 @@
 import React from 'react';
 import Patch from './components/Patch';
-import PatchModal from './components/PatchModal';
+import PatchCreateModal from './components/PatchCreateModal';
+import PatchEditModal from './components/PatchEditModal';
 import Wire from './components/Wire';
 import './Workspace.css';
 
@@ -22,7 +23,9 @@ class Workspace extends React.Component {
         lastPort: null
       },
       ui: {
-        isModalActive: false
+        activeModal: null,
+        patchId: null,
+        lastClickCoords: null
       },
       incompleteWire: { fromPatch:null, fromPort: null, toCoords: null },
       scale: 1,
@@ -30,11 +33,13 @@ class Workspace extends React.Component {
     };
 
     this.onPatchMove = this.onPatchMove.bind(this);
+    this.onPatchEdit = this.onPatchEdit.bind(this);
     this.onPortSelect = this.onPortSelect.bind(this);
     this.deleteWire = this.deleteWire.bind(this);
     this.deletePatch = this.deletePatch.bind(this);
     this.onOpenModal = this.onOpenModal.bind(this);
-    this.onCloseModal = this.onCloseModal.bind(this);
+    this.onCloseCreateModal = this.onCloseCreateModal.bind(this);
+    this.onCloseEditModal = this.onCloseEditModal.bind(this);
     this.onAddPatch = this.onAddPatch.bind(this);
     this.onToggleStickyPort = this.onToggleStickyPort.bind(this);
     this.onExecute = this.onExecute.bind(this);
@@ -45,6 +50,12 @@ class Workspace extends React.Component {
       this.props.network.updatePatch(patchId, { position: position });
       return this.props.network.getModel();
     });
+  }
+
+  onPatchEdit(patchId) {
+    if (this.props.network.getPatch(patchId).properties) {
+      this.setState({ ui: { activeModal: 'PATCH_EDIT', patchId: patchId }});
+    }
   }
 
   onPortSelect(patchId, portName, isInput) {
@@ -90,12 +101,27 @@ class Workspace extends React.Component {
     });
   }
 
-  onCloseModal() {
-    this.setState({ ui: { isModalActive: false, lastClickCoords: null }});
+  onOpenModal(evt) {
+    this.setState({ ui: { activeModal: 'PATCH_CREATE', lastClickCoords: svgCoords(evt) }});
   }
 
-  onOpenModal(evt) {
-    this.setState({ ui: { isModalActive: true, lastClickCoords: svgCoords(evt) }});
+  onCloseCreateModal() {
+    this.setState({ ui: { activeModal: null }});
+  }
+
+  onCloseEditModal(id, properties) {
+    if (!properties) {
+      this.setState({ ui: { activeModal: null }});
+      return;
+    }
+
+    this.setState((state, props) => {
+      this.props.network.updatePatch(id, { properties });
+      return {
+        ui: { activeModal: null },
+        ...this.props.network.getModel()
+      };
+    });
   }
 
   onAddPatch(patchClass) {
@@ -130,11 +156,17 @@ class Workspace extends React.Component {
       <div className='Workspace' >
         <button className='Workspace-exec-btn' onClick={this.onExecute}>Execute</button>
 
-        <PatchModal
+        <PatchCreateModal
           patchRegistry={this.props.network.patchRegistry}
-          isActive={this.state.ui.isModalActive}
-          onClose={this.onCloseModal}
+          isActive={this.state.ui.activeModal === 'PATCH_CREATE'}
+          onClose={this.onCloseCreateModal}
           onAddPatch={this.onAddPatch} />
+
+        <PatchEditModal
+          patchId={this.state.ui.patchId}
+          network={this.props.network}
+          isActive={this.state.ui.activeModal === 'PATCH_EDIT'}
+          onClose={this.onCloseEditModal} />
 
         <div className='Workspace-view'>
           <div className='Workspace-surface'>
@@ -159,7 +191,8 @@ class Workspace extends React.Component {
                       deletePatch={this.deletePatch}
                       onPatchMove={this.onPatchMove}
                       onPortSelect={this.onPortSelect}
-                      onToggleStickyPort={this.onToggleStickyPort}/>)
+                      onToggleStickyPort={this.onToggleStickyPort}
+                      onPatchEdit={this.onPatchEdit}/>)
                 }
 
               </g>

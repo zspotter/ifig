@@ -1,7 +1,7 @@
 import React from 'react';
 import './PatchModal.css';
 
-class PatchModal extends React.Component {
+class PatchCreateModal extends React.Component {
   constructor(props) {
     super(props);
 
@@ -48,4 +48,4 @@ class PatchModal extends React.Component {
   }
 }
 
-export default PatchModal;
+export default PatchCreateModal;

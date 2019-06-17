@@ -75,19 +75,31 @@ class LogPatch extends Patch {
 LogPatch.patchName = 'Log';
 
 // Emits a preset value once
-class SupplyPatch extends Patch {
-  constructor(properties) {
-    super('Supply', [], ['value']);
-    this.value = properties.value !== undefined ? properties.value : 123;
-    this.displayName = `Supply(${this.value})`;
+class FloatPatch extends Patch {
+  constructor() {
+    super('Float', [], ['value']);
+    this.properties = { value: 123 };
+    this.updateDisplay();
+  }
 
+  updateProperties(updated) {
+    let value = Number.parseFloat(updated.value);
+    if (isNaN(value)) {
+      value = 0;
+    }
+    this.properties.value = value;
+    this.updateDisplay();
+  }
+
+  updateDisplay() {
+    this.displayName = `Float(${this.properties.value})`;
   }
 
   receive() {
-    return {'value': this.value};
+    return {'value': this.properties.value};
   }
 }
-SupplyPatch.patchName = 'Supply';
+FloatPatch.patchName = 'Float';
 
 class PopPatch extends Patch {
   constructor() {
@@ -124,11 +136,15 @@ AppendPatch.patchName = 'Append';
 class JsFunctionPatch extends Patch {
   constructor(properties) {
     super('js/Function', [], ['result']);
-    this.fncBody = properties.body || 'new Date()';
+    this.properties = { functionBody: 'new Date()' };
+  }
+
+  updateProperties(updated) {
+    this.properties = updated;
   }
 
   receive() {
-    const fnc = new Function(`"use strict"; return (${this.fncBody});`);
+    const fnc = new Function(`"use strict"; return (${this.properties.functionBody});`);
     return { result: fnc() };
   }
 }
@@ -141,7 +157,7 @@ export {
   GatePatch,
   NoopPatch,
   LogPatch,
-  SupplyPatch,
+  FloatPatch,
   PopPatch,
   AppendPatch,
   JsFunctionPatch,

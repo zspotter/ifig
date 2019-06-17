@@ -13,7 +13,7 @@ const NETWORK_MANAGER = new NetworkManager(
     BasicPatches.GatePatch,
     BasicPatches.NoopPatch,
     BasicPatches.LogPatch,
-    BasicPatches.SupplyPatch,
+    BasicPatches.FloatPatch,
     BasicPatches.PopPatch,
     BasicPatches.AppendPatch,
     BasicPatches.JsFunctionPatch,
@@ -22,18 +22,13 @@ const NETWORK_MANAGER = new NetworkManager(
 
 // Set up demo network
 (function () {
-  const s1 = NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 100, y: 150 }, { value: 3 });
-  const s2 = NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 120, y: 500 }, { value: -1 });
+  const s1 = NETWORK_MANAGER.addPatch(BasicPatches.FloatPatch, { x: 100, y: 150 });
+  const s2 = NETWORK_MANAGER.addPatch(BasicPatches.FloatPatch, { x: 120, y: 500 });
   const a1 = NETWORK_MANAGER.addPatch(BasicPatches.AddPatch, { x: 400, y: 300 });
   const l1 = NETWORK_MANAGER.addPatch(BasicPatches.LogPatch, { x: 600, y: 300 });
   NETWORK_MANAGER.addWire(s1.id, 'value', a1.id, 'in1');
   NETWORK_MANAGER.addWire(s2.id, 'value', a1.id, 'in2');
   NETWORK_MANAGER.addWire(a1.id, 'sum', l1.id, 'message');
-
-  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 100, y: 700 }, { value: 0 });
-  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 300, y: 700 }, { value: 1 });
-  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 500, y: 700 }, { value: 10 });
-  NETWORK_MANAGER.addPatch(BasicPatches.SupplyPatch, { x: 700, y: 700 }, { value: [] });
 })();
 
 function App() {

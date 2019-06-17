@@ -7,16 +7,24 @@ class NetworkManager {
     this.patchMeta = new Map();
   }
 
-  addPatch(patchClass, position, properties = {}) {
-    const patch = new patchClass(properties);
+  addPatch(patchClass, position) {
+    const patch = new patchClass();
     this.network.addPatch(patch);
     this.patchMeta.set(patch.id, {});
     this.updatePatch(patch.id, { position });
     return patch;
   }
 
-  // Only updates meta, other fields ignored
+  getPatch(id) {
+    return this.network.patches.get(id).patch;
+  }
+
+  // Updates meta and properties
   updatePatch(id, fields) {
+    const patch = this.network.patches.get(id).patch;
+    if (fields.properties) {
+      patch.updateProperties(fields.properties);
+    }
     const meta = this.patchMeta.get(id);
     if (fields.position) {
       meta.position = fields.position;
@@ -54,6 +62,7 @@ class NetworkManager {
         inputs: patch.inputNames,
         stickyInputs: entry.stickyInputs,
         outputs: patch.outputNames,
+        properties: patch.properties,
         position: meta.position
       });
     }

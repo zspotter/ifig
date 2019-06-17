@@ -28,3 +28,7 @@
   overflow: scroll;
   height: 200px;
 }
+
+.PatchModal-container label {
+  display: block;
+}
