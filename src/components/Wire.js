@@ -37,36 +37,62 @@ class Wire extends React.Component {
   }
 
   computePathD() {
-    const from = document.querySelector(
+    const fromDom = document.querySelector(
       `.Patch-output [patch-id='${this.props.fromPatch}'][port-name='${this.props.fromPort}']`);
-    const to = document.querySelector(
+    const toDom = document.querySelector(
       `.Patch-input [patch-id='${this.props.toPatch}'][port-name='${this.props.toPort}']`);
     // DOM elements may be missing on first render
-    if (!from || !to) {
+    if (!fromDom || !toDom) {
       return null;
     }
 
     const svg = document.querySelector('.Workspace-doc');
-    const fromBox = getAbsoluteBBox(from, svg);
-    const x1 = fromBox.x + fromBox.width / 2;
-    const y1 = fromBox.y + fromBox.height / 2;
+    const fromBox = getAbsoluteBBox(fromDom, svg);
+    const toBox = getAbsoluteBBox(toDom, svg);
 
-    const toBox = getAbsoluteBBox(to, svg);
-    const x2 = toBox.x + toBox.width / 2 - 10;
-    const y2 = toBox.y + toBox.height / 2;
+    const from = {
+      x: fromBox.x + fromBox.width / 2,
+      y: fromBox.y + fromBox.height / 2
+    }
+    const to = {
+      x: toBox.x + toBox.width / 2 - 10,
+      y: toBox.y + toBox.height / 2
+    };
 
-    if (x2 - x1 > -20) {
+    if (to.x - from.x > -20) {
       // Simple direct curve
-      return `M${x1},${y1} C${x1 + BEZIER_OFFSET},${y1} ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`;
+      return `M ${from.x},${from.y} C ${from.x + BEZIER_OFFSET},${from.y} ${to.x - BEZIER_OFFSET},${to.y} ${to.x},${to.y}`;
     }
 
     // Curve that wraps back to the left
-    const xh = x2 + (x1 - x2) / 2;
-    const dy = Math.abs(y1 - y2);
-    const yh = Math.min(y1, y2) + dy / 2 + (dy < 50 ? 75 : 0);
-    return `M${x1},${y1} `
-      + `C${x1 + BEZIER_OFFSET},${y1} ${x1 + BEZIER_OFFSET},${yh} ${xh},${yh} `
-      + `S ${x2 - BEZIER_OFFSET},${y2} ${x2},${y2}`;
+    const height = 80;
+    const padding = 25;
+
+    const fromDirection = from.y < to.y
+      ?  1
+      : -1;
+    const toDirection = Math.abs(from.y - to.y) < height / 2
+      ? fromDirection
+      : fromDirection * -1;
+
+    const half = {
+      x: to.x + (from.x - to.x) / 2,
+      y: Math.min(from.y, to.y) + Math.abs(from.y - to.y) / 2
+          + (fromDirection === toDirection ? fromDirection * height / 2 : 0)
+    }
+
+    const fromCorner = {
+      x: from.x + padding,
+      y: from.y + fromDirection * (padding + height / 2)
+    };
+    const toCorner = {
+      x: to.x - padding,
+      y: to.y + toDirection * (padding + height / 2)
+    };
+
+    return `M ${from.x},${from.y} `
+      + `C ${fromCorner.x},${from.y} ${fromCorner.x},${fromCorner.y} ${half.x},${half.y} `
+      + `C ${toCorner.x},${toCorner.y} ${toCorner.x},${to.y} ${to.x},${to.y}`;
   }
 
   render() {
