@@ -202,6 +202,12 @@ class Workspace extends React.Component {
       </div>
     );
   }
+
+  componentDidMount() {
+    // Force a re-render after the component is first added to the DOM.
+    // This is a bit of a hack to hide the DOM issue mentioned in `Wire.computePathD()`
+    this.forceUpdate();
+  }
 }
 
 export default Workspace;
