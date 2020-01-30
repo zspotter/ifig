@@ -144,6 +144,7 @@ class JsFunctionPatch extends Patch {
   }
 
   receive() {
+    // eslint-disable-next-line
     const fnc = new Function(`"use strict"; return (${this.properties.functionBody});`);
     return { result: fnc() };
   }

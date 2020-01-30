@@ -90,6 +90,7 @@ class Network {
   }
 
   canReceive(patchId) {
+    // TODO: Store inputs with wires, so that 2 patches feeding a single Log patch both get logged without overridding
     return Object.values(this.patches.get(patchId).inputs)
       .every((val) => val !== undefined);
   }
