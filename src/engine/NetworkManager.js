@@ -7,41 +7,54 @@ class NetworkManager {
     this.patchMeta = new Map();
   }
 
-  addPatch(patchClass, position) {
+  addPatch(patchClass, properties) {
     const patch = new patchClass();
     this.network.addPatch(patch);
-    this.patchMeta.set(patch.id, {});
-    this.updatePatch(patch.id, { position });
+    this.patchMeta.set(patch.id, { patch: patch });
+    this.updatePatch(patch.id, properties);
     return patch;
   }
 
   getPatch(id) {
-    return this.network.patches.get(id).patch;
+    return this.patchMeta.get(id).patch;
   }
 
   // Updates meta and properties
   updatePatch(id, fields) {
-    const patch = this.network.patches.get(id).patch;
-    if (fields.properties) {
-      patch.updateProperties(fields.properties);
-    }
     const meta = this.patchMeta.get(id);
+    if (fields.properties) {
+      meta.patch.updateProperties(fields.properties);
+    }
     if (fields.position) {
       meta.position = fields.position;
     }
   }
 
   toggleStickiness(patchId, inputPort) {
-    this.network.toggleStickiness(patchId, inputPort);
+    // NB: Not really happy with current modeling since each wire connected to a single inport
+    // can technically have different stickiness, but users of this class see the inport itself
+    // as having a stickiness quality
+    const patch = this.patchMeta.get(patchId).patch;
+    let isSticky = false;
+    for (let wire of patch.inports.get(inputPort)) {
+      if (wire.isSticky) {
+        isSticky = true;
+        break;
+      }
+    }
+    patch.setInportStickiness(inputPort, !isSticky);
   }
 
   deletePatch(id) {
+    const patch = this.patchMeta.get(id).patch;
     this.patchMeta.delete(id);
-    this.network.deletePatch(id);
+    this.network.deletePatch(patch);
   }
 
   addWire(fromPatchId, fromPort, toPatchId, toPort) {
-    this.network.wirePatches(fromPatchId, fromPort, toPatchId, toPort);
+    const fromPatch = this.patchMeta.get(fromPatchId).patch;
+    const toPatch = this.patchMeta.get(toPatchId).patch;
+    this.network.wirePatches(fromPatch, fromPort, toPatch, toPort);
   }
 
   deleteWire(id) {
@@ -49,30 +62,36 @@ class NetworkManager {
   }
 
   getModel() {
+    // TODO: Clean this junk up!!!
     const patches = [];
     for (let [ id, meta ] of this.patchMeta) {
-      const entry = this.network.patches.get(id);
-      const patch = entry.patch;
+      const patch = this.patchMeta.get(id).patch;
+      const stickyInports = new Set();
+      for (let [inport, wires] of patch.inports) {
+        for (let wire of wires) {
+          if (wire.isSticky) {
+            stickyInports.add(inport);
+            break;
+          }
+        }
+      }
       patches.push({
         id: id,
         name: patch.displayName,
-        // TODO copy queues so they aren't mutated?
-        // What if a Component accidentally mutates this?
-        // More likely, what if the Patch adds another input to itself?
-        inputs: patch.inputNames,
-        stickyInputs: entry.stickyInputs,
-        outputs: patch.outputNames,
+        inputs: [...patch.inports.keys()],
+        stickyInputs: stickyInports,
+        outputs: [...patch.outports.keys()],
         properties: patch.properties,
         position: meta.position
       });
     }
 
-    const wires = this.network.patchConnections.map((c) => ({
+    const wires = [...this.network.wires.values()].map((c) => ({
       id: c.id,
-      fromPatch: c.fromPatch,
-      fromPort: c.fromPort,
-      toPatch: c.toPatch,
-      toPort: c.toPort
+      fromPatch: c.fromPatch.id,
+      fromPort: c.fromOutport,
+      toPatch: c.toPatch.id,
+      toPort: c.toInport
     }));
 
     return {

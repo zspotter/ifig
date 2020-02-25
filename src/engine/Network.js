@@ -1,117 +1,52 @@
+import Wire from "./patches/Wire";
+
 class Network {
   constructor() {
-    // Example map:
-    // {
-    //   'patch-id' : {
-    //     patch: <Patch>, // object
-    //     inputs: {
-    //       input1: undefined,
-    //       input2: 'Hello World'
-    //     },
-    //     stickyInputs: Set ['input2'],
-    //     outputs: {
-    //       output1: [
-    //         ['to-patch1-id', 'to-patch1-port'],
-    //         ['to-patch2-id', 'to-patch2-port']
-    //       ]
-    //     }
-    //   }
-    // }
-    this.patches = new Map();
-    this.patchConnections = [];
+    this.patches = [];
+    this.wires = new Map();
   }
 
   addPatch(patch) {
-    const inputs = {};
-    for (let input of patch.inputNames) {
-      inputs[input] = undefined;
-    }
-
-    const outputs = {};
-    for (let output of patch.outputNames) {
-      outputs[output] = [];
-    }
-
-    this.patches.set(patch.id, {
-      patch,
-      inputs,
-      stickyInputs: new Set(),
-      outputs
-    });
+    this.patches.push(patch);
   }
 
-  toggleStickiness(patchId, inputPort) {
-    const stickyInputs = this.patches.get(patchId).stickyInputs;
-    const isSticky = stickyInputs.has(inputPort);
-    if (!isSticky) {
-      stickyInputs.add(inputPort);
-    } else {
-      stickyInputs.delete(inputPort);
-    }
-  }
-
-  deletePatch(id) {
-    this.patches.delete(id);
-    for (let [ , entry] of this.patches) {
-      for (let port in entry.outputs) {
-        entry.outputs[port] = entry.outputs[port]
-          .filter(([toPatch, ]) => toPatch !== id);
+  deletePatch(patch) {
+    for (let wires of patch.inports.values()) {
+      for (let wire of wires) {
+        this.deleteWire(wire.id);
       }
     }
-
-    this.patchConnections = this.patchConnections.filter((wire) =>
-      wire.fromPatch !== id && wire.toPatch !== id);
+    for (let wires of patch.outports.values()) {
+      for (let wire of wires) {
+        this.deleteWire(wire.id);
+      }
+    }
+    const i = this.patches.indexOf(patch);
+    this.patches.splice(i, 1);
   }
 
-  wirePatches(fromPatchId, fromPort, toPatchId, toPort) {
-    const entry = this.patches.get(fromPatchId);
-    entry.outputs[fromPort].push([toPatchId, toPort]);
-
-    this.patchConnections.push({
-      id: `${fromPatchId}.${fromPort}:${toPatchId}.${toPort}`,
-      fromPatch: fromPatchId,
-      fromPort: fromPort,
-      toPatch: toPatchId,
-      toPort: toPort
-    });
+  wirePatches(fromPatch, outport, toPatch, inport) {
+    let wire = new Wire(fromPatch, outport, toPatch, inport);
+    fromPatch.addWireFrom(outport, wire);
+    toPatch.addWireTo(inport, wire);
+    this.wires.set(wire.id, wire);
   }
 
   deleteWire(id) {
-    let i = this.patchConnections.findIndex((wire) => wire.id === id);
-    const wire = this.patchConnections[i];
-    this.patchConnections.splice(i, 1);
-
-    const patchOutputs = this.patches.get(wire.fromPatch).outputs[wire.fromPort];
-    i = patchOutputs.findIndex(([patch, port]) => patch === wire.toPatch && port === wire.toPort);
-    if (i < 0) {
-      throw new Error('Should not happen');
-    }
-    patchOutputs.splice(i, 1);
-  }
-
-  canReceive(patchId) {
-    // TODO: Store inputs with wires, so that 2 patches feeding a single Log patch both get logged without overridding
-    return Object.values(this.patches.get(patchId).inputs)
-      .every((val) => val !== undefined);
-  }
-
-  clearInputs(patchId) {
-    const entry = this.patches.get(patchId);
-    for (let port in entry.inputs) {
-      if (!entry.stickyInputs.has(port)) {
-        entry.inputs[port] = undefined;
-      }
-    }
+    const wire = this.wires.get(id);
+    this.wires.delete(id);
+    wire.fromPatch.removeWireFrom(wire.fromOutport, wire);
+    wire.toPatch.removeWireTo(wire.toInport, wire);
   }
 
   execute() {
     // Patches without any inputs are executed first
     let executionQueue = [];
-    for (let [id, entry] of this.patches) {
+    for (let patch of this.patches) {
       // Ensure clean state
-      this.clearInputs(id);
-      if (Object.keys(entry.inputs).length === 0) {
-        executionQueue.push(id);
+      patch.clearInports();
+      if (patch.canReceive()) {
+        executionQueue.push(patch);
       }
     }
 
@@ -125,44 +60,22 @@ class Network {
         break;
       }
 
-      const patchId = executionQueue.shift();
-      if (!this.canReceive(patchId)) {
-        console.warn(`Patch ${patchId} was not ready to execute.`);
+      const patch = executionQueue.shift();
+      if (!patch.canReceive()) {
+        console.warn(`Patch ${patch.id} was not ready to execute.`);
         continue;
       }
 
-      const entry = this.patches.get(patchId);
-
-      const results = entry.patch.receive(entry.inputs);
-
-      console.debug(`Executed ${entry.patch.displayName} `
-        + `with inputs ${JSON.stringify(entry.inputs)} `
-        + `resulted in ${JSON.stringify(results)}`);
-
-      // Clear consumed inputs
-      this.clearInputs(patchId);
+      patch.execute();
 
       // TODO end execution early if patch was an Output patch
 
-      if (results === undefined) {
-        // Nothing to propogate. Connected patches are not triggered
-        continue;
-      }
-
-      for (let outputPort in entry.outputs) {
-        const value = results[outputPort];
-        if (value === undefined) {
-          continue;
-        }
-
-        // Copy value to connected patchs' inputs
-        const connections = entry.outputs[outputPort];
-        for (let [toPatchId, toPort] of connections) {
-          this.patches.get(toPatchId).inputs[toPort] = value;
-          // Enqueue connected patch for execution, if it is now ready
-          if (this.canReceive(toPatchId)) {
-            // TODO seems like it might be possible for the same patch to be enqueued twice
-            executionQueue.push(toPatchId);
+      for (let wires of patch.outports.values()) {
+        for (let wire of wires) {
+          let nextPatch = wire.toPatch;
+          // TODO don't enqueue same nextPatch twice per execution
+          if (nextPatch.canReceive()) {
+            executionQueue.push(nextPatch);
           }
         }
       }

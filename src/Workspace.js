@@ -128,7 +128,7 @@ class Workspace extends React.Component {
     const coords = this.state.ui.lastClickCoords;
 
     this.setState((state, props) => {
-      this.props.network.addPatch(patchClass, { x: coords.x - 20, y: coords.y - 20 });
+      this.props.network.addPatch(patchClass, { position: { x: coords.x - 20, y: coords.y - 20 } });
       return this.props.network.getModel();
     });
   }

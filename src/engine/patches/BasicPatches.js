@@ -35,8 +35,7 @@ class SignPatch extends Patch {
     } else if (value < 0) {
       return {'negative': value};
     }
-    // Else, NaN
-    // TODO trigger some error?
+    console.error('No sign!');
   }
 }
 SignPatch.patchName = 'Sign';
