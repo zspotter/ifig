@@ -2,8 +2,10 @@ import React from 'react';
 import Workspace from './Workspace';
 
 import * as BasicPatches from './engine/patches/BasicPatches';
+import * as NetworkPatches from './engine/patches/NetworkPatches';
 import NetworkManager from './engine/NetworkManager';
 import PatchRegistry from './engine/PatchRegistry';
+import { FactorialPatch } from './engine/patches/FactorialPatch';
 
 const NETWORK_MANAGER = new NetworkManager(
   new PatchRegistry([
@@ -17,6 +19,9 @@ const NETWORK_MANAGER = new NetworkManager(
     BasicPatches.PopPatch,
     BasicPatches.AppendPatch,
     BasicPatches.JsFunctionPatch,
+    NetworkPatches.InputPatch,
+    NetworkPatches.OutputPatch,
+    FactorialPatch
   ])
 );
 
@@ -44,15 +49,30 @@ const NETWORK_MANAGER = new NetworkManager(
   n.toggleStickiness(a.id, 'in1');
 })();
 
-function App() {
-  return (
-    <div className="App">
-      <h1 className="App-header">
-        Ifig Editor
-      </h1>
-      <Workspace network={NETWORK_MANAGER} />
-    </div>
-  );
+class App extends React.Component {
+  static defaultProps = { network: NETWORK_MANAGER }
+
+  constructor(props) {
+    super(props);
+
+    this.onExecute = this.onExecute.bind(this);
+  }
+
+  onExecute() {
+    this.props.network.execute();
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <h1 className="App-header">
+          Ifig Editor
+        </h1>
+        <button className='App-exec-btn' onClick={this.onExecute}>Execute</button>
+        <Workspace network={this.props.network} />
+      </div>
+    );
+  }
 }
 
 export default App;

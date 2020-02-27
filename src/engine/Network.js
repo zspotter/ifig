@@ -1,12 +1,29 @@
 import Wire from "./patches/Wire";
+import { InputPatch, OutputPatch } from "./patches/NetworkPatches";
 
 class Network {
   constructor() {
     this.patches = [];
+    this.inputPatch = null;
+    this.outputPatch = null;
     this.wires = new Map();
   }
 
   addPatch(patch) {
+    if (patch instanceof InputPatch) {
+      if (this.inputPatch) {
+        throw new Error("InputPatch already defined");
+      } else {
+        this.inputPatch = patch;
+      }
+    }
+    if (patch instanceof OutputPatch) {
+      if (this.outputPatch) {
+        throw new Error("OutputPatch already defined");
+      } else {
+        this.outputPatch = patch;
+      }
+    }
     this.patches.push(patch);
   }
 
@@ -83,6 +100,19 @@ class Network {
 
     const elapsed = new Date() - start;
     console.debug(`Completed execution in ${elapsed} ms`);
+  }
+
+  loadInports(inputs) {
+    if (this.inputPatch) {
+      this.inputPatch.values = inputs;
+    }
+  }
+
+  exportOutports() {
+    if (this.outputPatch) {
+      return this.outputPatch.values;
+    }
+    return null;
   }
 }
 

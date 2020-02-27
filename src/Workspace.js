@@ -42,7 +42,6 @@ class Workspace extends React.Component {
     this.onCloseEditModal = this.onCloseEditModal.bind(this);
     this.onAddPatch = this.onAddPatch.bind(this);
     this.onToggleStickyPort = this.onToggleStickyPort.bind(this);
-    this.onExecute = this.onExecute.bind(this);
   }
 
   onPatchMove(patchId, position) {
@@ -147,14 +146,9 @@ class Workspace extends React.Component {
     });
   }
 
-  onExecute() {
-    this.props.network.execute();
-  }
-
   render() {
     return (
       <div className='Workspace' >
-        <button className='Workspace-exec-btn' onClick={this.onExecute}>Execute</button>
 
         <PatchCreateModal
           patchRegistry={this.props.network.patchRegistry}

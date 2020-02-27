@@ -138,10 +138,6 @@ class JsFunctionPatch extends Patch {
     this.properties = { functionBody: 'new Date()' };
   }
 
-  updateProperties(updated) {
-    this.properties = updated;
-  }
-
   receive() {
     // eslint-disable-next-line
     const fnc = new Function(`"use strict"; return (${this.properties.functionBody});`);

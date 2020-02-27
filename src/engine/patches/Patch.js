@@ -12,6 +12,12 @@ class Patch {
     outputs.forEach(name => this.outports.set(name, new Set()));
   }
 
+  updateProperties(updated) {
+    if (this.properties) {
+      this.properties = updated;
+    }
+  }
+
   receive() {
     throw new Error('Not implemented');
   }
